@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">DJetpack Movie</string>
+    <string name="movies">Movies</string>
+    <string name="tv_shows">TV Show</string>
+    <string name="poster_image">Poster image</string>
+    <string name="image_background">Image background</string>
+    <string name="overview">Overview</string>
+    <string name="share">Share</string>
+    <string name="share_template">Check this out -> %s</string>
+</resources>
