@@ -70,20 +70,22 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
     }
 
     private fun observe() {
-        dataViewModel.resourceListFilm.observe(viewLifecycleOwner, { ev ->
-            ev.getContentIfNotHandled()?.let {
-                when (it.status) {
-                    Resource.Status.SUCCESS -> {
-                        it.data?.let { listFilm ->
-                            if (listFilm.isNotEmpty()) {
-                                rvAdapter.setData(listFilm)
-                            }
-                        }
+        dataViewModel.listFilm.observe(viewLifecycleOwner, {
+            when (it.status) {
+                Resource.Status.SUCCESS -> {
+                    it.data?.let { listFilm ->
+                        rvAdapter.setData(listFilm)
                     }
-                    Resource.Status.ERROR -> toast(it.message.toString())
+                }
+                Resource.Status.ERROR -> {
+                    it.message?.getContentIfNotHandled()?.let { msg ->
+                        toast(msg)
+                    }
+                    it.data?.let { listFilm ->
+                        rvAdapter.setData(listFilm)
+                    }
                 }
             }
-
         })
 
         dataViewModel.isLoading.observe(viewLifecycleOwner, {

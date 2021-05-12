@@ -1,5 +1,6 @@
 package com.dice.djetmovie.data.remote.utils
 
+import com.dice.djetmovie.utils.Event
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 
@@ -12,16 +13,16 @@ open class ResponseHandler {
         return Resource.success(data)
     }
 
-    fun <T : Any> handleException(e: Exception): Resource<T> {
+    fun <T : Any> handleException(e: Exception, data: T): Resource<T> {
         return when (e) {
-            is HttpException -> Resource.error(getErrorMessage(e.code()), null)
-            is SocketTimeoutException -> Resource.error(getErrorMessage(ErrorCodes.SocketTimeOut.code), null)
-            else -> Resource.error(getErrorMessage(Int.MAX_VALUE), null)
+            is HttpException -> Resource.error(Event(getErrorMessage(e.code())), data)
+            is SocketTimeoutException -> Resource.error(Event(getErrorMessage(ErrorCodes.SocketTimeOut.code)), data)
+            else -> Resource.error(Event(getErrorMessage(Int.MAX_VALUE)), data)
         }
     }
 
-    fun <T : Any> handleResponseCode(code: Int): Resource<T> {
-        return Resource.error(getErrorMessage(code), null)
+    fun <T : Any> handleResponseCode(code: Int, data: T): Resource<T> {
+        return Resource.error(Event(getErrorMessage(code)), data)
     }
 
     private fun getErrorMessage(code: Int): String {

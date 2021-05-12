@@ -8,20 +8,20 @@ import com.dice.djetmovie.data.remote.response.ResponseTvShow
 
 object DataMapper {
 
-    fun map(movie: ResponseMovie): MovieEntity {
-        return with(movie) {
+    fun map(response: ResponseMovie): MovieEntity {
+        return with(response) {
             MovieEntity(id, title, posterPath, backdropPath, releaseDate, overview, popularity)
         }
     }
 
-    fun map(tvShow: ResponseTvShow): TvShowEntity {
-        return with(tvShow) {
+    fun map(response: ResponseTvShow): TvShowEntity {
+        return with(response) {
             TvShowEntity(id, title, posterPath, backdropPath, releaseDate, overview, popularity)
         }
     }
 
-    fun map(movie: MovieEntity): Film {
-        return with(movie) {
+    fun map(entity: MovieEntity): Film {
+        return with(entity) {
             Film(
                     id,
                     title,
@@ -33,8 +33,8 @@ object DataMapper {
         }
     }
 
-    fun map(tvShow: TvShowEntity): Film {
-        return with(tvShow) {
+    fun map(entity: TvShowEntity): Film {
+        return with(entity) {
             Film(
                     id,
                     title,
@@ -44,5 +44,39 @@ object DataMapper {
                     overview ?: ""
             )
         }
+    }
+
+    fun mapListMovie(listEntities: List<MovieEntity>): List<Film> {
+        val listFilm = mutableListOf<Film>()
+        for (entity in listEntities) {
+            listFilm.add(with(entity) {
+                Film(
+                        id,
+                        title,
+                        posterPath ?: "",
+                        backdropPath ?: "",
+                        releaseDate ?: "",
+                        overview ?: ""
+                )
+            })
+        }
+        return listFilm
+    }
+
+    fun mapListTvShow(listEntities: List<TvShowEntity>): List<Film> {
+        val listFilm = mutableListOf<Film>()
+        for (entity in listEntities) {
+            listFilm.add(with(entity) {
+                Film(
+                        id,
+                        title,
+                        posterPath ?: "",
+                        backdropPath ?: "",
+                        releaseDate ?: "",
+                        overview ?: ""
+                )
+            })
+        }
+        return listFilm
     }
 }
