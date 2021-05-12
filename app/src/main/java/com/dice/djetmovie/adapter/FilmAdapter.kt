@@ -2,10 +2,9 @@ package com.dice.djetmovie.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.ItemFilmBinding
-import com.dice.djetmovie.repository.model.Film
 import com.dice.djetmovie.utils.Utils
 
 class FilmAdapter : RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
@@ -44,10 +43,10 @@ class FilmAdapter : RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
         RecyclerView.ViewHolder(binding.root) {
         fun bind(film: Film) {
             with(binding) {
-                Utils.setImage(
-                    itemView.context,
-                    imgPoster,
-                    ContextCompat.getDrawable(itemView.context, film.posterRes)
+                Utils.setPosterImage(
+                        itemView.context,
+                        imgPoster,
+                        film.posterPath
                 )
                 tvTitle.text = film.title
                 tvDateRelease.text = film.releaseDate

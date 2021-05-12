@@ -1,8 +1,7 @@
 package com.dice.djetmovie.viewmodel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.dice.djetmovie.repository.Constants
-import com.dice.djetmovie.repository.FilmDummy
+import com.dice.djetmovie.data.Constants
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule

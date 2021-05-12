@@ -7,4 +7,5 @@
     <string name="overview">Overview</string>
     <string name="share">Share</string>
     <string name="share_template">Check this out -> %s</string>
+    <string name="failed_remote_message">Failed to getting data from server.</string>
 </resources>

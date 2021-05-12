@@ -1,3 +1,4 @@
+
 package com.dice.djetmovie.ui.main
 
 import androidx.recyclerview.widget.RecyclerView
@@ -8,8 +9,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.dice.djetmovie.R
-import com.dice.djetmovie.repository.Constants
-import com.dice.djetmovie.repository.FilmDummy
+import com.dice.djetmovie.data.Constants
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
 import org.junit.Rule

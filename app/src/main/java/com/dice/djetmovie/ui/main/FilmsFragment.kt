@@ -4,34 +4,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.GridLayoutManager
 import com.dice.djetmovie.adapter.FilmAdapter
+import com.dice.djetmovie.data.Constants
+import com.dice.djetmovie.data.model.Film
+import com.dice.djetmovie.data.remote.utils.Resource
 import com.dice.djetmovie.databinding.FragmentFilmsBinding
-import com.dice.djetmovie.repository.model.Film
 import com.dice.djetmovie.ui.detail.DetailFilmActivity
 import com.dice.djetmovie.viewmodel.DataViewModel
 import org.jetbrains.anko.support.v4.startActivity
+import org.jetbrains.anko.support.v4.toast
+import org.koin.android.viewmodel.ext.android.viewModel
 
 private const val FILM_TYPE = "film_type"
 
 class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
 
-    private lateinit var binding: FragmentFilmsBinding
+    private var _binding: FragmentFilmsBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var rvAdapter: FilmAdapter
     private var filmType: String? = null
-    private val dataViewModel: DataViewModel by viewModels()
+    private val dataViewModel: DataViewModel by viewModel()
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param filmType Parameter 1.
-         * @return A new instance of fragment BlankFragment.
-         */
         @JvmStatic
         fun newInstance(filmType: String): Fragment {
             return FilmsFragment().apply {
@@ -50,11 +48,10 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        binding = FragmentFilmsBinding.inflate(inflater, container, false)
+            inflater: LayoutInflater, container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentFilmsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -67,10 +64,32 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
         observe()
     }
 
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
+    }
+
     private fun observe() {
-        dataViewModel.listFilms.observe(viewLifecycleOwner, Observer { list ->
-            if (list.isNotEmpty()) {
-                rvAdapter.setData(list)
+        dataViewModel.resourceListFilm.observe(viewLifecycleOwner, { ev ->
+            ev.getContentIfNotHandled()?.let {
+                when (it.status) {
+                    Resource.Status.SUCCESS -> {
+                        it.data?.let { listFilm ->
+                            if (listFilm.isNotEmpty()) {
+                                rvAdapter.setData(listFilm)
+                            }
+                        }
+                    }
+                    Resource.Status.ERROR -> toast(it.message.toString())
+                }
+            }
+
+        })
+
+        dataViewModel.isLoading.observe(viewLifecycleOwner, {
+            it.getContentIfNotHandled()?.let { loading ->
+                binding.progressLoading.isVisible = loading
+                binding.rvFilms.isVisible = !loading
             }
         })
     }
@@ -83,7 +102,14 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
             tag = filmType
         }
 
-        dataViewModel.getFilms(filmType)
+        when (filmType) {
+            Constants.FILM_TYPE_MOVIE -> {
+                dataViewModel.getMovies()
+            }
+            Constants.FILM_TYPE_TV_SHOW -> {
+                dataViewModel.getTvShows()
+            }
+        }
     }
 
     override fun onItemClick(data: Film) {

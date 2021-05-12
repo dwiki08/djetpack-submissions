@@ -4,8 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.dice.djetmovie.R
 import com.dice.djetmovie.adapter.ViewPagerAdapter
+import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.databinding.ActivityMainBinding
-import com.dice.djetmovie.repository.Constants
+import com.google.android.material.tabs.TabLayoutMediator
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,17 +28,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setViewPager() {
         val fragmentList = listOf(
-            FilmsFragment.newInstance(Constants.FILM_TYPE_MOVIE),
-            FilmsFragment.newInstance(Constants.FILM_TYPE_TV_SHOW)
+                FilmsFragment.newInstance(Constants.FILM_TYPE_MOVIE),
+                FilmsFragment.newInstance(Constants.FILM_TYPE_TV_SHOW)
         )
         val titleList = listOf(
-            getString(R.string.movies),
-            getString(R.string.tv_shows)
+                getString(R.string.movies),
+                getString(R.string.tv_shows)
         )
 
-        binding.viewPager.apply {
-            adapter = ViewPagerAdapter(supportFragmentManager, fragmentList, titleList)
-            binding.tabLayout.setupWithViewPager(this)
+        val vp2Adapter = ViewPagerAdapter(supportFragmentManager, lifecycle)
+        for (fragment in fragmentList) {
+            vp2Adapter.addFragment(fragment)
         }
+
+        binding.viewPager.adapter = vp2Adapter
+
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = titleList[position]
+            binding.viewPager.setCurrentItem(tab.position, true)
+        }.attach()
     }
 }

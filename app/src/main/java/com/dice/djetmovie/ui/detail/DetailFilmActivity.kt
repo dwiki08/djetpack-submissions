@@ -4,10 +4,9 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.dice.djetmovie.R
+import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.ActivityDetailFilmBinding
-import com.dice.djetmovie.repository.model.Film
 import com.dice.djetmovie.utils.Utils
 import com.google.android.material.appbar.AppBarLayout
 import org.jetbrains.anko.share
@@ -41,10 +40,15 @@ class DetailFilmActivity : AppCompatActivity() {
     private fun setView() {
         film?.let { film ->
             with(binding) {
-                Utils.setImage(
-                    applicationContext,
-                    binding.imgPoster,
-                    ContextCompat.getDrawable(applicationContext, film.posterRes)
+                Utils.setPosterImage(
+                        applicationContext,
+                        binding.imgPoster,
+                        film.posterPath
+                )
+                Utils.setBackdropImage(
+                        applicationContext,
+                        binding.imgBackdrop,
+                        film.backdropPath
                 )
                 tvTitle.text = film.title
                 tvDateRelease.text = film.releaseDate
