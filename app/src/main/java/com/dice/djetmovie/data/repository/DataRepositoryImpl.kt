@@ -1,5 +1,7 @@
 package com.dice.djetmovie.data.repository
 
+import android.content.Context
+import com.dice.djetmovie.R
 import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.data.DataMapper
 import com.dice.djetmovie.data.local.dao.MovieDao
@@ -13,6 +15,7 @@ import com.dice.djetmovie.utils.Event
 import com.dice.djetmovie.utils.NetworkHelper
 
 class DataRepositoryImpl(
+        private val context: Context,
         private val networkHelper: NetworkHelper,
         private val responseHandler: ResponseHandler,
         private val apiService: ApiService,
@@ -22,7 +25,7 @@ class DataRepositoryImpl(
 
     private val apiKey = Constants.API_KEY
     private val apiLanguage = Constants.API_LANGUAGE
-    private val msgNoInternet = "Can't connect to server."
+    private val msgNoInternet = context.getString(R.string.failed_remote_message)
 
     override suspend fun getListMovie(resource: Action<Resource<List<Film>>>) {
         val listEntities = movieDao.getMovies() as MutableList
@@ -43,6 +46,7 @@ class DataRepositoryImpl(
                             listEntities.add(entity)
                             listFilm.add(film)
                         }
+                        movieDao.clearMovie()
                         movieDao.insertMovies(*listEntities.toTypedArray())
                         if (!isShowLocal) resource.call(responseHandler.handleSuccess(listFilm))
                     }
@@ -76,6 +80,7 @@ class DataRepositoryImpl(
                             listEntities.add(entity)
                             listFilm.add(film)
                         }
+                        tvShowDao.clearTvShow()
                         tvShowDao.insertTvShows(*listEntities.toTypedArray())
                         if (!isShowLocal) resource.call(responseHandler.handleSuccess(listFilm))
                     }

@@ -60,7 +60,7 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
 
         rvAdapter = FilmAdapter()
 
-        setList()
+        initRv()
         observe()
     }
 
@@ -70,20 +70,22 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
     }
 
     private fun observe() {
-        dataViewModel.listFilm.observe(viewLifecycleOwner, {
+        if (filmType == Constants.FILM_TYPE_MOVIE) {
+            dataViewModel.listMovie
+        } else {
+            dataViewModel.listTvShow
+        }.observe(viewLifecycleOwner, {
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    it.data?.let { listFilm ->
-                        rvAdapter.setData(listFilm)
-                    }
+                    binding.tvMsgError.isVisible = false
+                    binding.animError.isVisible = false
+                    setRv(it.data)
                 }
                 Resource.Status.ERROR -> {
-                    it.message?.getContentIfNotHandled()?.let { msg ->
-                        toast(msg)
-                    }
-                    it.data?.let { listFilm ->
-                        rvAdapter.setData(listFilm)
-                    }
+                    binding.tvMsgError.isVisible = true
+                    binding.animError.isVisible = true
+                    it.message?.getContentIfNotHandled()?.let { msg -> toast(msg) }
+                    setRv(it.data)
                 }
             }
         })
@@ -96,7 +98,7 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
         })
     }
 
-    private fun setList() {
+    private fun initRv() {
         rvAdapter.setOnItemClickListener(this)
         binding.rvFilms.apply {
             layoutManager = GridLayoutManager(context, 2)
@@ -111,6 +113,12 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
             Constants.FILM_TYPE_TV_SHOW -> {
                 dataViewModel.getTvShows()
             }
+        }
+    }
+
+    private fun setRv(listFilm: List<Film>?) {
+        listFilm?.let { it ->
+            rvAdapter.setData(it)
         }
     }
 

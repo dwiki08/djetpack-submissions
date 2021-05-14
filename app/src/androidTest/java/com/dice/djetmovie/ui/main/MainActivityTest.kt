@@ -98,11 +98,7 @@ class MainActivityTest : KoinTest {
         with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))) {
             check(matches(isDisplayed()))
         }
-        onView(
-                allOf(
-                        withId(R.id.rv_films),
-                        withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))
-                )
+        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW)))
         ).perform(
             RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click())
         )

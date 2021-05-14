@@ -16,4 +16,7 @@ interface TvShowDao {
 
     @Delete
     suspend fun deleteTvShow(movie: TvShowEntity)
+
+    @Query("DELETE FROM tb_tv_show")
+    suspend fun clearTvShow()
 }

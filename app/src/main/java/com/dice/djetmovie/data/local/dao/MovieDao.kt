@@ -16,4 +16,7 @@ interface MovieDao {
 
     @Delete
     suspend fun deleteMovie(movie: MovieEntity)
+
+    @Query("DELETE FROM tb_movie")
+    suspend fun clearMovie()
 }
