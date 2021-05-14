@@ -63,6 +63,8 @@ dependencies {
     implementation "org.koin:koin-android-viewmodel:$koin_version"
     implementation "com.android.support:multidex:$multidex_version"
 
+    testImplementation "io.mockk:mockk:$mockito_version"
+    testImplementation "org.koin:koin-test:$koin_version"
     testImplementation "androidx.arch.core:core-testing:$core_test_version"
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "junit:junit:$junit_version"
@@ -70,4 +72,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$espresso_version"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espresso_version"
     androidTestImplementation "androidx.test:rules:$androidx_test_version"
+    androidTestImplementation "org.koin:koin-test:$koin_version"
+    androidTestImplementation "io.mockk:mockk-android:$mockito_version"
 }
