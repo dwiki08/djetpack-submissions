@@ -75,17 +75,18 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
         } else {
             dataViewModel.listTvShow
         }.observe(viewLifecycleOwner, {
+            val listFilm = it.data
             when (it.status) {
                 Resource.Status.SUCCESS -> {
-                    binding.tvMsgError.isVisible = false
-                    binding.animError.isVisible = false
-                    setRv(it.data)
+                    setRv(listFilm)
                 }
                 Resource.Status.ERROR -> {
-                    binding.tvMsgError.isVisible = true
-                    binding.animError.isVisible = true
                     it.message?.getContentIfNotHandled()?.let { msg -> toast(msg) }
-                    setRv(it.data)
+                    setRv(listFilm)
+
+                    binding.tvMsgError.isVisible = listFilm.isNullOrEmpty()
+                    binding.animError.isVisible = listFilm.isNullOrEmpty()
+                    binding.rvFilms.isVisible = !listFilm.isNullOrEmpty()
                 }
             }
         })
