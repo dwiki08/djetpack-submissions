@@ -23,12 +23,12 @@ object DataMapper {
     fun map(entity: MovieEntity): Film {
         return with(entity) {
             Film(
-                    id,
-                    title,
-                    posterPath ?: "",
-                    backdropPath ?: "",
-                    releaseDate ?: "",
-                    overview ?: ""
+                id,
+                title,
+                posterPath ?: "",
+                backdropPath ?: "",
+                releaseDate ?: "",
+                overview ?: ""
             )
         }
     }
@@ -36,12 +36,12 @@ object DataMapper {
     fun map(entity: TvShowEntity): Film {
         return with(entity) {
             Film(
-                    id,
-                    title,
-                    posterPath ?: "",
-                    backdropPath ?: "",
-                    releaseDate ?: "",
-                    overview ?: ""
+                id,
+                title,
+                posterPath ?: "",
+                backdropPath ?: "",
+                releaseDate ?: "",
+                overview ?: ""
             )
         }
     }
@@ -51,12 +51,12 @@ object DataMapper {
         for (entity in listEntities) {
             listFilm.add(with(entity) {
                 Film(
-                        id,
-                        title,
-                        posterPath ?: "",
-                        backdropPath ?: "",
-                        releaseDate ?: "",
-                        overview ?: ""
+                    id,
+                    title,
+                    posterPath ?: "",
+                    backdropPath ?: "",
+                    releaseDate ?: "",
+                    overview ?: ""
                 )
             })
         }
@@ -68,12 +68,12 @@ object DataMapper {
         for (entity in listEntities) {
             listFilm.add(with(entity) {
                 Film(
-                        id,
-                        title,
-                        posterPath ?: "",
-                        backdropPath ?: "",
-                        releaseDate ?: "",
-                        overview ?: ""
+                    id,
+                    title,
+                    posterPath ?: "",
+                    backdropPath ?: "",
+                    releaseDate ?: "",
+                    overview ?: ""
                 )
             })
         }

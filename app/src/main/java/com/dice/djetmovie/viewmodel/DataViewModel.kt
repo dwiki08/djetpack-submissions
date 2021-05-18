@@ -7,48 +7,86 @@ import androidx.lifecycle.viewModelScope
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.data.remote.utils.Resource
 import com.dice.djetmovie.data.repository.DataRepository
-import com.dice.djetmovie.utils.Action
-import com.dice.djetmovie.utils.Event
+import com.dice.djetmovie.utils.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class DataViewModel(private val repo: DataRepository) : ViewModel() {
+class DataViewModel(
+    private val repo: DataRepository,
+    private val networkHelper: NetworkHelper
+) : ViewModel() {
 
-    private val _listMovie = MutableLiveData<Resource<List<Film>>>()
-    val listMovie: MutableLiveData<Resource<List<Film>>> = _listMovie
+    private val _listMovie = MutableLiveData<List<Film>?>()
+    val listMovie: MutableLiveData<List<Film>?> = _listMovie
 
-    private val _listTvShow = MutableLiveData<Resource<List<Film>>>()
-    val listTvShow: MutableLiveData<Resource<List<Film>>> = _listTvShow
+    private val _listTvShow = MutableLiveData<List<Film>?>()
+    val listTvShow: MutableLiveData<List<Film>?> = _listTvShow
 
-    private val _isLoading = MutableLiveData<Event<Boolean>>()
-    val isLoading: LiveData<Event<Boolean>> = _isLoading
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
 
-    fun getMovies(refresh: Boolean = false) {
+    private val _errorMsg = MutableLiveData<String?>()
+    val errorMsg: LiveData<String?> = _errorMsg
+
+    fun getMovies(refresh: Boolean) {
         if (listMovie.value == null || refresh) {
-            _isLoading.postValue(Event(true))
+            _isLoading.postValue(true)
             viewModelScope.launch(Dispatchers.IO) {
-                repo.getListMovie(object : Action<Resource<List<Film>>> {
-                    override fun call(t: Resource<List<Film>>) {
-                        _listMovie.postValue(t)
-                        _isLoading.postValue(Event(false))
+
+                if (networkHelper.isNetworkConnected()) {
+                    val result = repo.getMoviesRemote()
+                    when (result.status) {
+                        Resource.Status.SUCCESS -> {
+                            _listMovie.postValue(result.data)
+                            _isLoading.postValue(false)
+                        }
+                        Resource.Status.ERROR -> {
+                            result.message?.let {
+                                if (listMovie.value == null) _errorMsg.postValue(it)
+                            }
+                            _isLoading.postValue(false)
+                        }
                     }
+                } else {
+                    val result = repo.getMoviesLocal()
+                    if (result.data.isNullOrEmpty()) {
+                        _errorMsg.postValue(null)
+                    } else {
+                        _listMovie.postValue(result.data)
+                    }
+                    _isLoading.postValue(false)
                 }
-                )
             }
         }
     }
 
-    fun getTvShows(refresh: Boolean = false) {
-        if (listMovie.value == null || refresh) {
-            _isLoading.postValue(Event(true))
+    fun getTvShows(refresh: Boolean) {
+        if (listTvShow.value == null || refresh) {
+            _isLoading.postValue(true)
             viewModelScope.launch(Dispatchers.IO) {
-                repo.getListTvShow(object : Action<Resource<List<Film>>> {
-                    override fun call(t: Resource<List<Film>>) {
-                        _listTvShow.postValue(t)
-                        _isLoading.postValue(Event(false))
+                if (networkHelper.isNetworkConnected()) {
+                    val result = repo.getTvShowsRemote()
+                    when (result.status) {
+                        Resource.Status.SUCCESS -> {
+                            _listTvShow.postValue(result.data)
+                            _isLoading.postValue(false)
+                        }
+                        Resource.Status.ERROR -> {
+                            result.message?.let {
+                                if (listTvShow.value == null) _errorMsg.postValue(it)
+                            }
+                            _isLoading.postValue(false)
+                        }
                     }
+                } else {
+                    val result = repo.getTvShowsLocal()
+                    if (result.data.isNullOrEmpty()) {
+                        _errorMsg.postValue(null)
+                    } else {
+                        _listTvShow.postValue(result.data)
+                    }
+                    _isLoading.postValue(false)
                 }
-                )
             }
         }
     }

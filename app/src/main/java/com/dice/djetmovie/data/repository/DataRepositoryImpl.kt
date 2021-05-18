@@ -6,92 +6,90 @@ import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.data.DataMapper
 import com.dice.djetmovie.data.local.dao.MovieDao
 import com.dice.djetmovie.data.local.dao.TvShowDao
+import com.dice.djetmovie.data.local.entities.MovieEntity
+import com.dice.djetmovie.data.local.entities.TvShowEntity
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.data.remote.ApiService
 import com.dice.djetmovie.data.remote.utils.Resource
 import com.dice.djetmovie.data.remote.utils.ResponseHandler
-import com.dice.djetmovie.utils.Action
-import com.dice.djetmovie.utils.Event
-import com.dice.djetmovie.utils.NetworkHelper
 
 class DataRepositoryImpl(
-        private val context: Context,
-        private val networkHelper: NetworkHelper,
-        private val responseHandler: ResponseHandler,
-        private val apiService: ApiService,
-        private val movieDao: MovieDao,
-        private val tvShowDao: TvShowDao
+    context: Context,
+    private val responseHandler: ResponseHandler,
+    private val apiService: ApiService,
+    private val movieDao: MovieDao,
+    private val tvShowDao: TvShowDao
 ) : DataRepository {
 
     private val apiKey = Constants.API_KEY
     private val apiLanguage = Constants.API_LANGUAGE
     private val msgNoInternet = context.getString(R.string.failed_remote_message)
 
-    override suspend fun getListMovie(resource: Action<Resource<List<Film>>>) {
-        val listEntities = movieDao.getMovies() as MutableList
-        val listFilm = DataMapper.mapListMovie(listEntities) as MutableList
-        val isShowLocal = listFilm.isNotEmpty()
+    override suspend fun getMoviesRemote(): Resource<List<Film>> {
+        val listEntities = mutableListOf<MovieEntity>()
+        val listFilm = mutableListOf<Film>()
 
-        if (isShowLocal) resource.call(Resource.success(listFilm))
-
-        if (networkHelper.isNetworkConnected()) {
-            try {
-                val response = apiService.getMovie(apiKey, apiLanguage)
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        listEntities.clear()
-                        for (responseData in it.results) {
-                            val entity = DataMapper.map(responseData)
-                            val film = DataMapper.map(entity)
-                            listEntities.add(entity)
-                            listFilm.add(film)
-                        }
-                        movieDao.clearMovie()
-                        movieDao.insertMovies(*listEntities.toTypedArray())
-                        if (!isShowLocal) resource.call(responseHandler.handleSuccess(listFilm))
+        try {
+            val response = apiService.getMovie(apiKey, apiLanguage)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    listEntities.clear()
+                    for (responseData in it.results) {
+                        val entity = DataMapper.map(responseData)
+                        val film = DataMapper.map(entity)
+                        listEntities.add(entity)
+                        listFilm.add(film)
                     }
-                } else {
-                    resource.call(responseHandler.handleResponseCode(response.code(), listFilm))
+                    movieDao.insertMovies(*listEntities.toTypedArray())
+                    return responseHandler.handleSuccess(listFilm)
                 }
-            } catch (e: Exception) {
-                resource.call(responseHandler.handleException(e, listFilm))
+            } else {
+                return responseHandler.handleResponseCode(response.code(), listFilm)
             }
-        } else {
-            resource.call(Resource.error(Event(msgNoInternet), listFilm))
+        } catch (e: Exception) {
+            return responseHandler.handleException(e, listFilm)
         }
+
+        return Resource.error(msgNoInternet, listFilm)
     }
 
-    override suspend fun getListTvShow(resource: Action<Resource<List<Film>>>) {
+    override suspend fun getMoviesLocal(): Resource<List<Film>> {
+        val listEntities = movieDao.getMovies() as MutableList
+        val listFilm = DataMapper.mapListMovie(listEntities) as MutableList
+        return responseHandler.handleSuccess(listFilm)
+    }
+
+    override suspend fun getTvShowsRemote(): Resource<List<Film>> {
+        val listEntities = mutableListOf<TvShowEntity>()
+        val listFilm = mutableListOf<Film>()
+
+        try {
+            val response = apiService.getTvShow(apiKey, apiLanguage)
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    listEntities.clear()
+                    for (responseData in it.results) {
+                        val entity = DataMapper.map(responseData)
+                        val film = DataMapper.map(entity)
+                        listEntities.add(entity)
+                        listFilm.add(film)
+                    }
+                    tvShowDao.insertTvShows(*listEntities.toTypedArray())
+                    return responseHandler.handleSuccess(listFilm)
+                }
+            } else {
+                return responseHandler.handleResponseCode(response.code(), listFilm)
+            }
+        } catch (e: Exception) {
+            return responseHandler.handleException(e, listFilm)
+        }
+
+        return Resource.error(msgNoInternet, listFilm)
+    }
+
+    override suspend fun getTvShowsLocal(): Resource<List<Film>> {
         val listEntities = tvShowDao.getTvShows() as MutableList
         val listFilm = DataMapper.mapListTvShow(listEntities) as MutableList
-        val isShowLocal = listFilm.isNotEmpty()
-
-        if (isShowLocal) resource.call(Resource.success(listFilm))
-
-        if (networkHelper.isNetworkConnected()) {
-            try {
-                val response = apiService.getTvShow(apiKey, apiLanguage)
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        listEntities.clear()
-                        for (responseData in it.results) {
-                            val entity = DataMapper.map(responseData)
-                            val film = DataMapper.map(entity)
-                            listEntities.add(entity)
-                            listFilm.add(film)
-                        }
-                        tvShowDao.clearTvShow()
-                        tvShowDao.insertTvShows(*listEntities.toTypedArray())
-                        if (!isShowLocal) resource.call(responseHandler.handleSuccess(listFilm))
-                    }
-                } else {
-                    resource.call(responseHandler.handleResponseCode(response.code(), listFilm))
-                }
-            } catch (e: Exception) {
-                resource.call(responseHandler.handleException(e, listFilm))
-            }
-        } else {
-            resource.call(Resource.error(Event(msgNoInternet), listFilm))
-        }
+        return responseHandler.handleSuccess(listFilm)
     }
 }

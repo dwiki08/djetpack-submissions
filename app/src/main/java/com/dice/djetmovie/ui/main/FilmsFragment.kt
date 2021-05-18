@@ -10,12 +10,10 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.dice.djetmovie.adapter.FilmAdapter
 import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.data.model.Film
-import com.dice.djetmovie.data.remote.utils.Resource
 import com.dice.djetmovie.databinding.FragmentFilmsBinding
 import com.dice.djetmovie.ui.detail.DetailFilmActivity
 import com.dice.djetmovie.viewmodel.DataViewModel
 import org.jetbrains.anko.support.v4.startActivity
-import org.jetbrains.anko.support.v4.toast
 import org.koin.android.viewmodel.ext.android.viewModel
 
 private const val FILM_TYPE = "film_type"
@@ -48,8 +46,8 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
     }
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View {
         _binding = FragmentFilmsBinding.inflate(inflater, container, false)
         return binding.root
@@ -61,6 +59,7 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
         rvAdapter = FilmAdapter()
 
         initRv()
+        initView()
         observe()
     }
 
@@ -74,29 +73,25 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
             dataViewModel.listMovie
         } else {
             dataViewModel.listTvShow
-        }.observe(viewLifecycleOwner, {
-            val listFilm = it.data
-            when (it.status) {
-                Resource.Status.SUCCESS -> {
-                    setRv(listFilm)
-                }
-                Resource.Status.ERROR -> {
-                    it.message?.getContentIfNotHandled()?.let { msg -> toast(msg) }
-                    setRv(listFilm)
-
-                    binding.tvMsgError.isVisible = listFilm.isNullOrEmpty()
-                    binding.animError.isVisible = listFilm.isNullOrEmpty()
-                    binding.rvFilms.isVisible = !listFilm.isNullOrEmpty()
-                }
-            }
+        }.observe(viewLifecycleOwner, { listFilm ->
+            showError(listFilm.isNullOrEmpty())
+            listFilm?.let { rvAdapter.setData(listFilm) }
         })
 
-        dataViewModel.isLoading.observe(viewLifecycleOwner, {
-            it.getContentIfNotHandled()?.let { loading ->
-                binding.progressLoading.isVisible = loading
-                binding.rvFilms.isVisible = !loading
-            }
+        dataViewModel.isLoading.observe(viewLifecycleOwner, { loading ->
+            binding.progressLoading.isVisible = loading
         })
+
+        dataViewModel.errorMsg.observe(viewLifecycleOwner, { msg ->
+            showError(true)
+            msg?.let { binding.tvMsgError.text = msg }
+        })
+    }
+
+    private fun initView() {
+        binding.viewError.setOnClickListener {
+            setRv(true)
+        }
     }
 
     private fun initRv() {
@@ -106,21 +101,23 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
             adapter = rvAdapter
             tag = filmType
         }
+        setRv(false)
+    }
 
+    private fun setRv(refresh: Boolean) {
         when (filmType) {
             Constants.FILM_TYPE_MOVIE -> {
-                dataViewModel.getMovies()
+                dataViewModel.getMovies(refresh)
             }
             Constants.FILM_TYPE_TV_SHOW -> {
-                dataViewModel.getTvShows()
+                dataViewModel.getTvShows(refresh)
             }
         }
     }
 
-    private fun setRv(listFilm: List<Film>?) {
-        listFilm?.let { it ->
-            rvAdapter.setData(it)
-        }
+    private fun showError(error: Boolean) {
+        binding.rvFilms.isVisible = !error
+        binding.viewError.isVisible = error
     }
 
     override fun onItemClick(data: Film) {

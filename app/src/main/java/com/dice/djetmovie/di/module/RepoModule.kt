@@ -6,5 +6,5 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val repoModule = module {
-    factory<DataRepository> { DataRepositoryImpl(androidContext(), get(), get(), get(), get(), get()) }
+    factory<DataRepository> { DataRepositoryImpl(androidContext(), get(), get(), get(), get()) }
 }
