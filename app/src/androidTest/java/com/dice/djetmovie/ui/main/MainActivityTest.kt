@@ -3,6 +3,7 @@ package com.dice.djetmovie.ui.main
 
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -10,12 +11,11 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.dice.djetmovie.R
 import com.dice.djetmovie.data.Constants
-import com.dice.djetmovie.data.repository.DataRepository
-import com.dice.djetmovie.viewmodel.DataViewModel
+import com.dice.djetmovie.utils.EspressoIdlingResource
 import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.allOf
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -27,40 +27,27 @@ class MainActivityTest : KoinTest {
     @get:Rule
     var activityRule = ActivityScenarioRule(MainActivity::class.java)
 
-    @MockK
-    private lateinit var repo: DataRepository
-
-    private lateinit var dataViewModel: DataViewModel
-
     @Before
     fun setUp() {
+        IdlingRegistry.getInstance().register(EspressoIdlingResource.getEspressoIdlingResource())
         MockKAnnotations.init(this, relaxUnitFun = true)
-        dataViewModel = DataViewModel(repo)
     }
 
-    private fun waitDelay(delay: Long = 2000) {
-        try {
-            Thread.sleep(delay)
-        } catch (e: InterruptedException) {
-            e.printStackTrace()
-        }
+    @After
+    fun tearDown() {
+        IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getEspressoIdlingResource())
     }
 
     @Test
     fun loadMovies() {
         with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))) {
             check(matches(isDisplayed()))
-
-            waitDelay()
-
             perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(19))
         }
     }
 
     @Test
     fun loadDetailMovie() {
-        waitDelay()
-
         onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE)))).perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click())
         )
@@ -83,17 +70,12 @@ class MainActivityTest : KoinTest {
         onView(withText("TV SHOW")).perform(click())
         with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))) {
             check(matches(isDisplayed()))
-
-            waitDelay()
-
             perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(19))
         }
     }
 
     @Test
     fun loadDetailTvMovies() {
-        waitDelay()
-
         onView(withText("TV SHOW")).perform(click())
         with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))) {
             check(matches(isDisplayed()))

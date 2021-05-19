@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.data.remote.utils.Resource
 import com.dice.djetmovie.data.repository.DataRepository
+import com.dice.djetmovie.utils.EspressoIdlingResource
 import com.dice.djetmovie.utils.NetworkHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,6 +16,9 @@ class DataViewModel(
     private val repo: DataRepository,
     private val networkHelper: NetworkHelper
 ) : ViewModel() {
+
+    //untuk idling resource Instrument Test
+    private val forTest = false
 
     private val _listMovie = MutableLiveData<List<Film>?>()
     val listMovie: MutableLiveData<List<Film>?> = _listMovie
@@ -30,6 +34,8 @@ class DataViewModel(
 
     fun getMovies(refresh: Boolean) {
         if (listMovie.value == null || refresh) {
+            if (forTest) EspressoIdlingResource.increment()
+
             _isLoading.postValue(true)
             viewModelScope.launch(Dispatchers.IO) {
 
@@ -39,12 +45,14 @@ class DataViewModel(
                         Resource.Status.SUCCESS -> {
                             _listMovie.postValue(result.data)
                             _isLoading.postValue(false)
+                            if (forTest) EspressoIdlingResource.decrement()
                         }
                         Resource.Status.ERROR -> {
                             result.message?.let {
                                 if (listMovie.value == null) _errorMsg.postValue(it)
                             }
                             _isLoading.postValue(false)
+                            if (forTest) EspressoIdlingResource.decrement()
                         }
                     }
                 } else {
@@ -55,6 +63,7 @@ class DataViewModel(
                         _listMovie.postValue(result.data)
                     }
                     _isLoading.postValue(false)
+                    if (forTest) EspressoIdlingResource.decrement()
                 }
             }
         }
@@ -62,6 +71,8 @@ class DataViewModel(
 
     fun getTvShows(refresh: Boolean) {
         if (listTvShow.value == null || refresh) {
+            if (forTest) EspressoIdlingResource.increment()
+
             _isLoading.postValue(true)
             viewModelScope.launch(Dispatchers.IO) {
                 if (networkHelper.isNetworkConnected()) {
@@ -70,12 +81,14 @@ class DataViewModel(
                         Resource.Status.SUCCESS -> {
                             _listTvShow.postValue(result.data)
                             _isLoading.postValue(false)
+                            if (forTest) EspressoIdlingResource.decrement()
                         }
                         Resource.Status.ERROR -> {
                             result.message?.let {
                                 if (listTvShow.value == null) _errorMsg.postValue(it)
                             }
                             _isLoading.postValue(false)
+                            if (forTest) EspressoIdlingResource.decrement()
                         }
                     }
                 } else {
@@ -86,6 +99,7 @@ class DataViewModel(
                         _listTvShow.postValue(result.data)
                     }
                     _isLoading.postValue(false)
+                    if (forTest) EspressoIdlingResource.decrement()
                 }
             }
         }

@@ -62,7 +62,9 @@ dependencies {
     implementation "org.koin:koin-android:$koin_version"
     implementation "org.koin:koin-android-viewmodel:$koin_version"
     implementation "com.android.support:multidex:$multidex_version"
+    implementation "com.android.support.test.espresso:espresso-idling-resource:$espresso_version"
 
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_test_version"
     testImplementation "io.mockk:mockk:$mockito_version"
     testImplementation "org.koin:koin-test:$koin_version"
     testImplementation "androidx.arch.core:core-testing:$core_test_version"
