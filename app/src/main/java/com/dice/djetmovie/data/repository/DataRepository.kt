@@ -1,14 +1,27 @@
 package com.dice.djetmovie.data.repository
 
+import androidx.paging.PagingData
 import com.dice.djetmovie.data.model.Film
-import com.dice.djetmovie.data.remote.utils.Resource
+import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
-    suspend fun getMoviesRemote(): Resource<List<Film>>
+    fun getMoviesPaging(query: String? = null): Flow<PagingData<Film>>
 
-    suspend fun getMoviesLocal(): Resource<List<Film>>
+    fun getTvShowPaging(query: String? = null): Flow<PagingData<Film>>
 
-    suspend fun getTvShowsRemote(): Resource<List<Film>>
+    fun getFavoriteMovies(): Flow<PagingData<Film>>
 
-    suspend fun getTvShowsLocal(): Resource<List<Film>>
+    fun getFavoriteTvShow(): Flow<PagingData<Film>>
+
+    suspend fun addFavoriteMovie(film: Film)
+
+    suspend fun addFavoriteTvShow(film: Film)
+
+    suspend fun removeFavoriteMovie(film: Film)
+
+    suspend fun removeFavoriteTvShow(film: Film)
+
+    suspend fun getFavoriteMovieById(id: Int): Film?
+
+    suspend fun getFavoriteTvShowById(id: Int): Film?
 }

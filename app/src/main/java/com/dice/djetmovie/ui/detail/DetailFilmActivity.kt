@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.dice.djetmovie.R
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.ActivityDetailFilmBinding
 import com.dice.djetmovie.utils.Utils
 import com.google.android.material.appbar.AppBarLayout
 import org.jetbrains.anko.share
+import org.koin.android.viewmodel.ext.android.viewModel
 
 class DetailFilmActivity : AppCompatActivity() {
     companion object {
@@ -18,7 +20,8 @@ class DetailFilmActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailFilmBinding
     private var film: Film? = null
-    private var menu: Menu? = null
+    private var isFavorite = false
+    private val viewModel: DetailViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +32,19 @@ class DetailFilmActivity : AppCompatActivity() {
         intent.extras?.let {
             film = it.getParcelable(EXTRAS_FILM)
         }
+
         setToolbar()
         setView()
+        observe()
+    }
+
+    private fun observe() {
+        viewModel.isFavorite.observe(this, {
+            val menu = binding.toolbar.menu.findItem(R.id.menu_add_favorite)
+            menu.icon = if (it) ContextCompat.getDrawable(this, R.drawable.ic_favorite_accent)
+            else ContextCompat.getDrawable(this, R.drawable.ic_favorite_border)
+            isFavorite = it
+        })
     }
 
     private fun setToolbar() {
@@ -41,9 +55,9 @@ class DetailFilmActivity : AppCompatActivity() {
         film?.let { film ->
             with(binding) {
                 Utils.setPosterImage(
-                        applicationContext,
-                        binding.imgPoster,
-                        film.posterPath
+                    applicationContext,
+                    binding.imgPoster,
+                    film.posterPath
                 )
                 Utils.setBackdropImage(
                         applicationContext,
@@ -67,7 +81,7 @@ class DetailFilmActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_detail_film, menu)
-        this.menu = menu
+        film?.let { viewModel.checkIsFavorite(it) }
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -75,6 +89,21 @@ class DetailFilmActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> onBackPressed()
             R.id.menu_share -> share(getString(R.string.share_template, film?.title))
+            R.id.menu_add_favorite -> {
+                film?.let {
+                    if (isFavorite) {
+                        when (it.type) {
+                            Film.TYPE.MOVIE -> viewModel.removeMovieFavorite(it)
+                            Film.TYPE.TV_SHOW -> viewModel.removeTvShowFavorite(it)
+                        }
+                    } else {
+                        when (it.type) {
+                            Film.TYPE.MOVIE -> viewModel.addMovieFavorite(it)
+                            Film.TYPE.TV_SHOW -> viewModel.addTvShowFavorite(it)
+                        }
+                    }
+                }
+            }
         }
         return super.onOptionsItemSelected(item)
     }

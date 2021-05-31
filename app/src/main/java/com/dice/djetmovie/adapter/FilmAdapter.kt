@@ -2,30 +2,28 @@ package com.dice.djetmovie.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.ItemFilmBinding
+import com.dice.djetmovie.ui.detail.DetailFilmActivity
 import com.dice.djetmovie.utils.Utils
+import org.jetbrains.anko.startActivity
 
-class FilmAdapter : RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
-    private val filmList = ArrayList<Film>()
+class FilmAdapter : PagingDataAdapter<Film, FilmAdapter.FilmViewHolder>(ITEM_COMPARATOR) {
 
     companion object {
-        internal var clickListener: ClickListener? = null
-    }
+        private val ITEM_COMPARATOR: DiffUtil.ItemCallback<Film> =
+            object : DiffUtil.ItemCallback<Film>() {
+                override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean {
+                    return oldItem == newItem
+                }
 
-    interface ClickListener {
-        fun onItemClick(data: Film)
-    }
-
-    fun setOnItemClickListener(clickListener: ClickListener) {
-        FilmAdapter.clickListener = clickListener
-    }
-
-    fun setData(items: List<Film>) {
-        filmList.clear()
-        filmList.addAll(items)
-        notifyDataSetChanged()
+                override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean {
+                    return oldItem == newItem
+                }
+            }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
@@ -33,10 +31,10 @@ class FilmAdapter : RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
         return FilmViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = filmList.size
-
     override fun onBindViewHolder(holder: FilmViewHolder, position: Int) {
-        holder.bind(filmList[position])
+        getItem(position)?.let {
+            holder.bind(it)
+        }
     }
 
     class FilmViewHolder(private val binding: ItemFilmBinding) :
@@ -52,7 +50,7 @@ class FilmAdapter : RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
                 tvDateRelease.text = film.releaseDate
 
                 itemView.setOnClickListener {
-                    clickListener?.onItemClick(film)
+                    binding.root.context.startActivity<DetailFilmActivity>(DetailFilmActivity.EXTRAS_FILM to film)
                 }
             }
         }

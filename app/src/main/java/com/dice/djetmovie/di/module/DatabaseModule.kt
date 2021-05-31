@@ -9,9 +9,11 @@ import org.koin.dsl.module
 val databaseModule = module {
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, Constants.DB_FILM)
-                .fallbackToDestructiveMigration().build()
+            .fallbackToDestructiveMigration().build()
     }
 
     factory { get<AppDatabase>().movieDao() }
     factory { get<AppDatabase>().tvShowDao() }
+    factory { get<AppDatabase>().favoriteMovieDao() }
+    factory { get<AppDatabase>().favoriteTvShowDao() }
 }

@@ -7,42 +7,10 @@
     android:background="@color/background"
     tools:context=".ui.main.FilmsFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <include
         android:id="@+id/view_error"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.25">
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/anim_error"
-            android:layout_width="160dp"
-            android:layout_height="160dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/error_network_anim" />
-
-        <TextView
-            android:id="@+id/tv_msg_error"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="@string/failed_remote_message"
-            android:textColor="@color/black21"
-            android:textSize="16sp"
-            app:layout_constraintLeft_toLeftOf="@id/anim_error"
-            app:layout_constraintRight_toRightOf="@id/anim_error"
-            app:layout_constraintTop_toBottomOf="@id/anim_error" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        layout="@layout/layout_error"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_films"

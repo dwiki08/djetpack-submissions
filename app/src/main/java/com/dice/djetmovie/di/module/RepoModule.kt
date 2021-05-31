@@ -5,5 +5,5 @@ import com.dice.djetmovie.data.repository.DataRepositoryImpl
 import org.koin.dsl.module
 
 val repoModule = module {
-    factory<DataRepository> { DataRepositoryImpl(get(), get(), get(), get()) }
+    factory<DataRepository> { DataRepositoryImpl(get(), get(), get()) }
 }

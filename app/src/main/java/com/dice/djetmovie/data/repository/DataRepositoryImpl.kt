@@ -1,92 +1,84 @@
 package com.dice.djetmovie.data.repository
 
-import com.dice.djetmovie.data.Constants
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import com.dice.djetmovie.data.DataMapper
-import com.dice.djetmovie.data.local.dao.MovieDao
-import com.dice.djetmovie.data.local.dao.TvShowDao
-import com.dice.djetmovie.data.local.entities.MovieEntity
-import com.dice.djetmovie.data.local.entities.TvShowEntity
+import com.dice.djetmovie.data.local.dao.FavoriteMovieDao
+import com.dice.djetmovie.data.local.dao.FavoriteTvShowDao
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.data.remote.ApiService
-import com.dice.djetmovie.data.remote.utils.Resource
-import com.dice.djetmovie.data.remote.utils.ResponseHandler
+import com.dice.djetmovie.data.remote.source.MoviePagingSource
+import com.dice.djetmovie.data.remote.source.TvShowPagingSource
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class DataRepositoryImpl(
-    private val responseHandler: ResponseHandler,
     private val apiService: ApiService,
-    private val movieDao: MovieDao,
-    private val tvShowDao: TvShowDao
+    private val favMovieDao: FavoriteMovieDao,
+    private val favTvShowDao: FavoriteTvShowDao
 ) : DataRepository {
 
-    private val apiKey = Constants.API_KEY
-    private val apiLanguage = Constants.API_LANGUAGE
-    private val msgNoInternet = "Failed to getting data from server."
-
-    override suspend fun getMoviesRemote(): Resource<List<Film>> {
-        val listEntities = mutableListOf<MovieEntity>()
-        val listFilm = mutableListOf<Film>()
-
-        try {
-            val response = apiService.getMovie(apiKey, apiLanguage)
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    listEntities.clear()
-                    for (responseData in it.results) {
-                        val entity = DataMapper.map(responseData)
-                        val film = DataMapper.map(entity)
-                        listEntities.add(entity)
-                        listFilm.add(film)
-                    }
-                    movieDao.insertMovies(*listEntities.toTypedArray())
-                    return Resource.success(listFilm)
-                }
-            } else {
-                return responseHandler.handleResponseCode(response.code(), listFilm)
-            }
-        } catch (e: Exception) {
-            return responseHandler.handleException(e, listFilm)
-        }
-
-        return Resource.error(msgNoInternet, listFilm)
+    companion object {
+        private const val NETWORK_PAGE_SIZE = 20
     }
 
-    override suspend fun getMoviesLocal(): Resource<List<Film>> {
-        val listEntities = movieDao.getMovies() as MutableList
-        val listFilm = DataMapper.mapListMovie(listEntities) as MutableList
-        return Resource.success(listFilm)
+    override fun getMoviesPaging(query: String?): Flow<PagingData<Film>> {
+        return Pager(PagingConfig(
+            pageSize = NETWORK_PAGE_SIZE,
+            enablePlaceholders = false
+        ), pagingSourceFactory = { MoviePagingSource(apiService, query) }
+        ).flow
     }
 
-    override suspend fun getTvShowsRemote(): Resource<List<Film>> {
-        val listEntities = mutableListOf<TvShowEntity>()
-        val listFilm = mutableListOf<Film>()
-
-        try {
-            val response = apiService.getTvShow(apiKey, apiLanguage)
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    listEntities.clear()
-                    for (responseData in it.results) {
-                        val entity = DataMapper.map(responseData)
-                        val film = DataMapper.map(entity)
-                        listEntities.add(entity)
-                        listFilm.add(film)
-                    }
-                    tvShowDao.insertTvShows(*listEntities.toTypedArray())
-                    return Resource.success(listFilm)
-                }
-            } else {
-                return responseHandler.handleResponseCode(response.code(), listFilm)
-            }
-        } catch (e: Exception) {
-            return responseHandler.handleException(e, listFilm)
-        }
-
-        return Resource.error(msgNoInternet, listFilm)
+    override fun getTvShowPaging(query: String?): Flow<PagingData<Film>> {
+        return Pager(PagingConfig(
+            pageSize = NETWORK_PAGE_SIZE,
+            enablePlaceholders = false
+        ), pagingSourceFactory = { TvShowPagingSource(apiService, query) }
+        ).flow
     }
 
-    override suspend fun getTvShowsLocal(): Resource<List<Film>> {
-        val listEntities = tvShowDao.getTvShows() as MutableList
-        val listFilm = DataMapper.mapListTvShow(listEntities) as MutableList
-        return Resource.success(listFilm)
+    override fun getFavoriteMovies(): Flow<PagingData<Film>> {
+        return Pager(PagingConfig(
+            pageSize = NETWORK_PAGE_SIZE,
+            enablePlaceholders = false
+        ), pagingSourceFactory = { favMovieDao.getMovies() }
+        ).flow.map { it.map { entity -> DataMapper.map(entity) } }
+    }
+
+    override fun getFavoriteTvShow(): Flow<PagingData<Film>> {
+        return Pager(PagingConfig(
+            pageSize = NETWORK_PAGE_SIZE,
+            enablePlaceholders = false
+        ), pagingSourceFactory = { favTvShowDao.getTvShow() }
+        ).flow.map { it.map { entity -> DataMapper.map(entity) } }
+    }
+
+    override suspend fun addFavoriteMovie(film: Film) {
+        favMovieDao.insertMovies(*listOf(DataMapper.mapMovie(film)).toTypedArray())
+    }
+
+    override suspend fun addFavoriteTvShow(film: Film) {
+        favTvShowDao.insertTvShows(*listOf(DataMapper.mapTvShow(film)).toTypedArray())
+    }
+
+    override suspend fun removeFavoriteMovie(film: Film) {
+        favMovieDao.deleteMovie(DataMapper.mapMovie(film))
+    }
+
+    override suspend fun removeFavoriteTvShow(film: Film) {
+        favTvShowDao.deleteTvShow(DataMapper.mapTvShow(film))
+    }
+
+    override suspend fun getFavoriteMovieById(id: Int): Film? {
+        val entity = favMovieDao.getMovie(id)
+        return if (entity == null) null else DataMapper.map(entity)
+    }
+
+    override suspend fun getFavoriteTvShowById(id: Int): Film? {
+        val entity = favTvShowDao.getTvShow(id)
+        return if (entity == null) null else DataMapper.map(entity)
     }
 }

@@ -6,28 +6,30 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.GridLayoutManager
 import com.dice.djetmovie.adapter.FilmAdapter
+import com.dice.djetmovie.adapter.FilmLoadStateAdapter
 import com.dice.djetmovie.data.Constants
-import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.FragmentFilmsBinding
-import com.dice.djetmovie.ui.detail.DetailFilmActivity
-import com.dice.djetmovie.viewmodel.DataViewModel
-import org.jetbrains.anko.support.v4.startActivity
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.android.viewmodel.ext.android.viewModel
 
-private const val FILM_TYPE = "film_type"
 
-class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
+class FilmsFragment : Fragment() {
 
     private var _binding: FragmentFilmsBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var rvAdapter: FilmAdapter
     private var filmType: String? = null
-    private val dataViewModel: DataViewModel by viewModel()
+    private val viewModel: MainViewModel by viewModel()
 
     companion object {
+        private const val FILM_TYPE = "film_type"
+
         @JvmStatic
         fun newInstance(filmType: String): Fragment {
             return FilmsFragment().apply {
@@ -60,7 +62,6 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
 
         initRv()
         initView()
-        observe()
     }
 
     override fun onDestroyView() {
@@ -68,59 +69,61 @@ class FilmsFragment : Fragment(), FilmAdapter.ClickListener {
         super.onDestroyView()
     }
 
-    private fun observe() {
-        if (filmType == Constants.FILM_TYPE_MOVIE) {
-            dataViewModel.listMovie
-        } else {
-            dataViewModel.listTvShow
-        }.observe(viewLifecycleOwner, { listFilm ->
-            showError(listFilm.isNullOrEmpty())
-            listFilm?.let { rvAdapter.setData(listFilm) }
-        })
-
-        dataViewModel.isLoading.observe(viewLifecycleOwner, { loading ->
-            binding.progressLoading.isVisible = loading
-        })
-
-        dataViewModel.errorMsg.observe(viewLifecycleOwner, { msg ->
-            showError(true)
-            msg?.let { binding.tvMsgError.text = msg }
-        })
-    }
-
     private fun initView() {
-        binding.viewError.setOnClickListener {
-            setRv(true)
+        binding.viewError.root.setOnClickListener {
+            setData()
         }
     }
 
     private fun initRv() {
-        rvAdapter.setOnItemClickListener(this)
+        rvAdapter.addLoadStateListener { loadState ->
+            // Only show the list if refresh succeeds.
+            binding.rvFilms.isVisible = loadState.source.refresh is LoadState.NotLoading
+            // Show loading spinner during initial load or refresh.
+            binding.progressLoading.isVisible = loadState.source.refresh is LoadState.Loading
+            // Show the retry state if initial load or refresh fails.
+            binding.viewError.root.isVisible = loadState.source.refresh is LoadState.Error
+            if (loadState.source.refresh is LoadState.Error) {
+                binding.viewError.tvMsgError.text =
+                    (loadState.source.refresh as LoadState.Error).error.localizedMessage
+            }
+        }
+        val gridLayoutManager = GridLayoutManager(context, 2)
+        gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int): Int {
+                return if (position == rvAdapter.itemCount && rvAdapter.itemCount > 0) {
+                    2
+                } else {
+                    1
+                }
+            }
+        }
         binding.rvFilms.apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = rvAdapter
+            layoutManager = gridLayoutManager
             tag = filmType
+            adapter = rvAdapter.withLoadStateHeaderAndFooter(
+                header = FilmLoadStateAdapter { rvAdapter.retry() },
+                footer = FilmLoadStateAdapter { rvAdapter.retry() }
+            )
         }
-        setRv(false)
+        setData()
     }
 
-    private fun setRv(refresh: Boolean) {
-        when (filmType) {
-            Constants.FILM_TYPE_MOVIE -> {
-                dataViewModel.getMovies(refresh)
-            }
-            Constants.FILM_TYPE_TV_SHOW -> {
-                dataViewModel.getTvShows(refresh)
+    private fun setData() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            when (filmType) {
+                Constants.FILM_TYPE_MOVIE -> {
+                    viewModel.getMoviesPaging().collect {
+                        rvAdapter.submitData(it)
+                    }
+                }
+
+                Constants.FILM_TYPE_TV_SHOW -> {
+                    viewModel.getTvShowPaging().collect {
+                        rvAdapter.submitData(it)
+                    }
+                }
             }
         }
-    }
-
-    private fun showError(error: Boolean) {
-        binding.rvFilms.isVisible = !error
-        binding.viewError.isVisible = error
-    }
-
-    override fun onItemClick(data: Film) {
-        startActivity<DetailFilmActivity>(DetailFilmActivity.EXTRAS_FILM to data)
     }
 }
