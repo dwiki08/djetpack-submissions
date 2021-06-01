@@ -12,8 +12,6 @@ val databaseModule = module {
             .fallbackToDestructiveMigration().build()
     }
 
-    factory { get<AppDatabase>().movieDao() }
-    factory { get<AppDatabase>().tvShowDao() }
     factory { get<AppDatabase>().favoriteMovieDao() }
     factory { get<AppDatabase>().favoriteTvShowDao() }
 }

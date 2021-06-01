@@ -73,6 +73,7 @@ class FilmsFragment : Fragment() {
         binding.viewError.root.setOnClickListener {
             setData()
         }
+        binding.viewError.root.tag = filmType
     }
 
     private fun initRv() {

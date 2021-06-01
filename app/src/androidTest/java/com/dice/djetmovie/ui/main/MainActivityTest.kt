@@ -3,15 +3,14 @@ package com.dice.djetmovie.ui.main
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.dice.djetmovie.R
 import com.dice.djetmovie.data.Constants
-import com.dice.djetmovie.util.RecyclerViewItemCountAssertion
 import com.dice.djetmovie.utils.EspressoIdlingResource
 import io.mockk.MockKAnnotations
 import org.hamcrest.Matchers.`is`
@@ -47,6 +46,32 @@ class MainActivityTest : KoinTest {
         }
     }
 
+    @Test
+    fun loadTvShows() {
+        onView(withText("TV SHOW")).perform(click())
+        with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))) {
+            check(matches(isDisplayed()))
+            perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(39))
+        }
+    }
+
+    @Test
+    fun loadDetailMovie() {
+        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
+                .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+        checkDetailMovie()
+    }
+
+    @Test
+    fun loadDetailTvShow() {
+        onView(withText("TV SHOW")).perform(click())
+        with(onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))) {
+            check(matches(isDisplayed()))
+            perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click()))
+        }
+        checkDetailTvShow()
+    }
+
     private fun checkDetailMovie() {
         with(onView(withId(R.id.tv_title))) {
             check(matches(isDisplayed()))
@@ -59,56 +84,6 @@ class MainActivityTest : KoinTest {
         }
         with(onView(withId(R.id.menu_share))) {
             check(matches(isDisplayed()))
-        }
-    }
-
-    @Test
-    fun loadDetailMovie() {
-        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE)))).perform(
-            RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(0, click())
-        )
-        checkDetailMovie()
-    }
-
-    @Test
-    fun addAndRemoveMovieFavorite() {
-        loadDetailMovie()
-
-        //add favorite
-        onView(withId(R.id.menu_add_favorite)).perform(click())
-
-        //check favorite
-        onView(isRoot()).perform(ViewActions.pressBack())
-        onView(withId(R.id.menu_favorites)).perform(click())
-        onView(withId(R.id.rv_films)).check(RecyclerViewItemCountAssertion(1))
-        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
-            .perform(
-                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    0,
-                    click()
-                )
-            )
-        checkDetailMovie()
-
-        //remove favorite
-        onView(withId(R.id.menu_add_favorite)).perform(click())
-        onView(isRoot()).perform(ViewActions.pressBack())
-        onView(withId(R.id.rv_films)).check(RecyclerViewItemCountAssertion(0))
-    }
-
-    @Test
-    fun loadTvShows() {
-        onView(withText("TV SHOW")).perform(click())
-        with(
-            onView(
-                allOf(
-                    withId(R.id.rv_films),
-                    withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))
-                )
-            )
-        ) {
-            check(matches(isDisplayed()))
-            perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(39))
         }
     }
 
@@ -127,53 +102,4 @@ class MainActivityTest : KoinTest {
         }
     }
 
-    @Test
-    fun loadDetailTvShow() {
-        onView(withText("TV SHOW")).perform(click())
-        with(
-            onView(
-                allOf(
-                    withId(R.id.rv_films),
-                    withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))
-                )
-            )
-        ) {
-            check(matches(isDisplayed()))
-        }
-        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))
-            .perform(
-                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    0,
-                    click()
-                )
-            )
-        checkDetailTvShow()
-    }
-
-    @Test
-    fun addAndRemoveTvShowFavorite() {
-        loadDetailTvShow()
-
-        //add favorite
-        onView(withId(R.id.menu_add_favorite)).perform(click())
-
-        //check favorite
-        onView(isRoot()).perform(ViewActions.pressBack())
-        onView(withId(R.id.menu_favorites)).perform(click())
-        onView(withText("TV SHOW")).perform(click())
-        onView(withId(R.id.rv_films)).check(RecyclerViewItemCountAssertion(1))
-        onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))
-            .perform(
-                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
-                    0,
-                    click()
-                )
-            )
-        checkDetailTvShow()
-
-        //remove favorite
-        onView(withId(R.id.menu_add_favorite)).perform(click())
-        onView(isRoot()).perform(ViewActions.pressBack())
-        onView(withId(R.id.rv_films)).check(RecyclerViewItemCountAssertion(0))
-    }
 }

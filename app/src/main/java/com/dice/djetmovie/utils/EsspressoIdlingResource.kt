@@ -4,7 +4,7 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.idling.CountingIdlingResource
 
 object EspressoIdlingResource {
-    //untuk instrumnet test
+    //untuk instrument test ubah ke 'true'
     private const val IDLING_RESOURCE = false
 
     private const val RESOURCE: String = "GLOBAL"

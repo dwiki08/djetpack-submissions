@@ -7,9 +7,7 @@ import com.dice.djetmovie.data.repository.DataRepository
 
 class MainViewModel(private val repo: DataRepository) : ViewModel() {
 
-    fun getMoviesPaging(query: String? = null) =
-        repo.getMoviesPaging(query).cachedIn(viewModelScope)
+    fun getMoviesPaging() = repo.getMoviesPaging().cachedIn(viewModelScope)
 
-    fun getTvShowPaging(query: String? = null) =
-        repo.getTvShowPaging(query).cachedIn(viewModelScope)
+    fun getTvShowPaging() = repo.getTvShowPaging().cachedIn(viewModelScope)
 }

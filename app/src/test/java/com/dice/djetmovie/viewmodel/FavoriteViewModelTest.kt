@@ -50,7 +50,7 @@ class FavoriteViewModelTest {
 
     @Test
     fun testGetMoviesPaging() = coroutinesTestRule.testDispatcher.runBlockingTest {
-        coEvery { repo.getFavoriteMovies() } returns flowOf(PagingData.from(DataDummy.dummyMovieFilm()))
+        coEvery { repo.getFavoriteMovies() } returns flowOf(PagingData.from(DataDummy.movieFilm()))
 
         val result = viewModel.getMoviesPaging().first()
 
@@ -59,7 +59,7 @@ class FavoriteViewModelTest {
 
     @Test
     fun testGetTvShowPaging() = coroutinesTestRule.testDispatcher.runBlockingTest {
-        coEvery { repo.getFavoriteTvShow() } returns flowOf(PagingData.from(DataDummy.dummyTvShowFilm()))
+        coEvery { repo.getFavoriteTvShow() } returns flowOf(PagingData.from(DataDummy.tvShowFilm()))
 
         val result = viewModel.getTvShowPaging().first()
 

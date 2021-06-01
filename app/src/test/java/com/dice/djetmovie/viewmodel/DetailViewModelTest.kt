@@ -47,7 +47,7 @@ class DetailViewModelTest {
 
     @Test
     fun addFavoriteMovie() {
-        val dummyFavored = DataDummy.dummyMovieFilm()[0]
+        val dummyFavored = DataDummy.movieFilm()[0]
 
         coEvery { repo.getFavoriteMovieById(any()) } returns dummyFavored
 
@@ -61,7 +61,7 @@ class DetailViewModelTest {
 
     @Test
     fun removeFavoriteMovie() {
-        val dummyFavored = DataDummy.dummyMovieFilm()[0]
+        val dummyFavored = DataDummy.movieFilm()[0]
 
         coEvery { repo.getFavoriteMovieById(any()) } returns dummyFavored
 
@@ -75,7 +75,7 @@ class DetailViewModelTest {
 
     @Test
     fun addFavoriteTvShow() {
-        val dummyFavored = DataDummy.dummyTvShowFilm()[0]
+        val dummyFavored = DataDummy.tvShowFilm()[0]
 
         coEvery { repo.getFavoriteTvShowById(any()) } returns dummyFavored
 
@@ -89,7 +89,7 @@ class DetailViewModelTest {
 
     @Test
     fun removeFavoriteTvShow() {
-        val dummyFavored = DataDummy.dummyTvShowFilm()[0]
+        val dummyFavored = DataDummy.tvShowFilm()[0]
 
         coEvery { repo.getFavoriteTvShowById(any()) } returns dummyFavored
 
@@ -104,7 +104,7 @@ class DetailViewModelTest {
     @Test
     fun checkIsFavored() {
         //ubah untuk check favored Movie atau Tv Show
-        val dummyFavored = DataDummy.dummyMovieFilm()[0]        //Movie
+        val dummyFavored = DataDummy.movieFilm()[0]             //Movie
         //val dummyFavored = DataDummy.dummyTvShowFilm()[0]     //Tv Show
 
         coEvery { repo.getFavoriteTvShowById(any()) } returns dummyFavored

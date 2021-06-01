@@ -42,7 +42,7 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun searchFilms(query: String?) {
-        EventBus.getDefault().post(SearchData(query))
+        if (!query.isNullOrEmpty()) EventBus.getDefault().post(SearchData(query))
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

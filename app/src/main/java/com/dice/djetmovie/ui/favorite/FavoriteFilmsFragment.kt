@@ -71,6 +71,7 @@ class FavoriteFilmsFragment : Fragment() {
         binding.viewError.setOnClickListener {
             setData()
         }
+        binding.viewEmpty.tag = filmType
     }
 
     private fun initRv() {

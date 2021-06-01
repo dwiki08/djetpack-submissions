@@ -76,6 +76,7 @@ class SearchFragment : Fragment() {
         binding.viewError.root.setOnClickListener {
             setData(searchData?.query)
         }
+        binding.viewError.root.tag = filmType
     }
 
     private fun initRv() {

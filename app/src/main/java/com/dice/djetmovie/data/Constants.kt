@@ -9,8 +9,6 @@ object Constants {
     const val FILM_TYPE_MOVIE = "movie"
     const val FILM_TYPE_TV_SHOW = "tv_show"
     const val DB_FILM = "db_film"
-    const val TABLE_MOVIE = "tb_movie"
-    const val TABLE_TV_SHOW = "tb_tv_show"
     const val TABLE_FAV_MOVIE = "tb_fav_movie"
     const val TABLE_FAV_TV_SHOW = "tb_fav_tv_show"
 }

@@ -6,6 +6,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.dice.djetmovie.R
+import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.databinding.ActivityDetailFilmBinding
 import com.dice.djetmovie.utils.Utils
@@ -93,13 +94,13 @@ class DetailFilmActivity : AppCompatActivity() {
                 film?.let {
                     if (isFavorite) {
                         when (it.type) {
-                            Film.TYPE.MOVIE -> viewModel.removeMovieFavorite(it)
-                            Film.TYPE.TV_SHOW -> viewModel.removeTvShowFavorite(it)
+                            Constants.FILM_TYPE_MOVIE -> viewModel.removeMovieFavorite(it)
+                            Constants.FILM_TYPE_TV_SHOW -> viewModel.removeTvShowFavorite(it)
                         }
                     } else {
                         when (it.type) {
-                            Film.TYPE.MOVIE -> viewModel.addMovieFavorite(it)
-                            Film.TYPE.TV_SHOW -> viewModel.addTvShowFavorite(it)
+                            Constants.FILM_TYPE_MOVIE -> viewModel.addMovieFavorite(it)
+                            Constants.FILM_TYPE_TV_SHOW -> viewModel.addTvShowFavorite(it)
                         }
                     }
                 }

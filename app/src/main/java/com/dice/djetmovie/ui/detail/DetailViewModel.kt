@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dice.djetmovie.data.Constants
 import com.dice.djetmovie.data.model.Film
 import com.dice.djetmovie.data.repository.DataRepository
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +45,7 @@ class DetailViewModel(private val repo: DataRepository) : ViewModel() {
 
     fun checkIsFavorite(film: Film) {
         viewModelScope.launch(Dispatchers.IO) {
-            val result = if (film.type == Film.TYPE.MOVIE) {
+            val result = if (film.type == Constants.FILM_TYPE_MOVIE) {
                 repo.getFavoriteMovieById(film.id)
             } else {
                 repo.getFavoriteTvShowById(film.id)

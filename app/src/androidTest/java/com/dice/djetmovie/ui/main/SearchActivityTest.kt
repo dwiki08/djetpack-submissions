@@ -36,14 +36,15 @@ class SearchActivityTest : KoinTest {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.getEspressoIdlingResource())
     }
 
-    private val query = "pirates"
+    private val queryFound = "pirates"
+    private val queryNotFound = "iquwbcuiwawqebgfiu"
 
     @Test
-    fun searchMovie() {
+    fun searchFoundMovie() {
         onView(withId(R.id.menu_search)).perform(click())
-        onView(withId(R.id.edt_query)).perform(typeText(query), pressImeActionButton())
+        onView(withId(R.id.edt_query)).perform(replaceText(queryFound), pressImeActionButton())
         with(
-            onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
+                onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
         ) {
             check(matches(isDisplayed()))
             perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(20))
@@ -51,15 +52,32 @@ class SearchActivityTest : KoinTest {
     }
 
     @Test
-    fun searchTvShow() {
+    fun searchFoundTvShow() {
         onView(withId(R.id.menu_search)).perform(click())
         onView(withText("TV SHOW")).perform(click())
-        onView(withId(R.id.edt_query)).perform(typeText(query), pressImeActionButton())
+        onView(withId(R.id.edt_query)).perform(replaceText(queryFound), pressImeActionButton())
         with(
-            onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
+                onView(allOf(withId(R.id.rv_films), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
         ) {
             check(matches(isDisplayed()))
             perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(20))
         }
+    }
+
+    @Test
+    fun searchNotFoundMovie() {
+        onView(withId(R.id.menu_search)).perform(click())
+        onView(withId(R.id.edt_query)).perform(replaceText(queryNotFound), pressImeActionButton())
+        onView(allOf(withId(R.id.view_error), withTagValue(`is`(Constants.FILM_TYPE_MOVIE))))
+                .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun searchNotFoundTvShow() {
+        onView(withId(R.id.menu_search)).perform(click())
+        onView(withText("TV SHOW")).perform(click())
+        onView(withId(R.id.edt_query)).perform(replaceText(queryNotFound), pressImeActionButton())
+        onView(allOf(withId(R.id.view_error), withTagValue(`is`(Constants.FILM_TYPE_TV_SHOW))))
+                .check(matches(isDisplayed()))
     }
 }
