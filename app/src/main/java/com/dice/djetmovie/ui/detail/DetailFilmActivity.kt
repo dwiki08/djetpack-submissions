@@ -15,9 +15,6 @@ import org.jetbrains.anko.share
 import org.koin.android.viewmodel.ext.android.viewModel
 
 class DetailFilmActivity : AppCompatActivity() {
-    companion object {
-        const val EXTRAS_FILM = "extras_film"
-    }
 
     private lateinit var binding: ActivityDetailFilmBinding
     private var film: Film? = null
@@ -107,5 +104,9 @@ class DetailFilmActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    companion object {
+        const val EXTRAS_FILM = "extras_film"
     }
 }

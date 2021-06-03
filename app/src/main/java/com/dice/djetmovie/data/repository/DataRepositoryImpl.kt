@@ -20,10 +20,6 @@ class DataRepositoryImpl(
     private val favTvShowDao: FavoriteTvShowDao
 ) : DataRepository {
 
-    companion object {
-        private const val NETWORK_PAGE_SIZE = 20
-    }
-
     override fun getMoviesPaging(query: String?): Flow<PagingData<Film>> {
         return Pager(PagingConfig(
             pageSize = NETWORK_PAGE_SIZE,
@@ -80,5 +76,9 @@ class DataRepositoryImpl(
     override suspend fun getFavoriteTvShowById(id: Int): Film? {
         val entity = favTvShowDao.getTvShow(id)
         return if (entity == null) null else DataMapper.map(entity)
+    }
+
+    companion object {
+        private const val NETWORK_PAGE_SIZE = 20
     }
 }

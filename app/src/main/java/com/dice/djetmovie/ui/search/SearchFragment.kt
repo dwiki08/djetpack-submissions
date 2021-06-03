@@ -30,19 +30,6 @@ class SearchFragment : Fragment() {
     private var searchData: SearchData? = null
     private val viewModel: SearchViewModel by viewModel()
 
-    companion object {
-        private const val FILM_TYPE = "film_type"
-
-        @JvmStatic
-        fun newInstance(filmType: String): Fragment {
-            return SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(FILM_TYPE, filmType)
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -137,5 +124,18 @@ class SearchFragment : Fragment() {
     fun onSearchData(searchData: SearchData) {
         this.searchData = searchData
         setData(searchData.query)
+    }
+
+    companion object {
+        private const val FILM_TYPE = "film_type"
+
+        @JvmStatic
+        fun newInstance(filmType: String): Fragment {
+            return SearchFragment().apply {
+                arguments = Bundle().apply {
+                    putString(FILM_TYPE, filmType)
+                }
+            }
+        }
     }
 }

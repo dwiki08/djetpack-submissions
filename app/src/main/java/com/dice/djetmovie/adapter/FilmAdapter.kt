@@ -13,19 +13,6 @@ import org.jetbrains.anko.startActivity
 
 class FilmAdapter : PagingDataAdapter<Film, FilmAdapter.FilmViewHolder>(ITEM_COMPARATOR) {
 
-    companion object {
-        private val ITEM_COMPARATOR: DiffUtil.ItemCallback<Film> =
-            object : DiffUtil.ItemCallback<Film>() {
-                override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean {
-                    return oldItem == newItem
-                }
-
-                override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean {
-                    return oldItem == newItem
-                }
-            }
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
         val binding = ItemFilmBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FilmViewHolder(binding)
@@ -38,7 +25,7 @@ class FilmAdapter : PagingDataAdapter<Film, FilmAdapter.FilmViewHolder>(ITEM_COM
     }
 
     class FilmViewHolder(private val binding: ItemFilmBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+            RecyclerView.ViewHolder(binding.root) {
         fun bind(film: Film) {
             with(binding) {
                 Utils.setPosterImage(
@@ -54,5 +41,18 @@ class FilmAdapter : PagingDataAdapter<Film, FilmAdapter.FilmViewHolder>(ITEM_COM
                 }
             }
         }
+    }
+
+    companion object {
+        private val ITEM_COMPARATOR: DiffUtil.ItemCallback<Film> =
+                object : DiffUtil.ItemCallback<Film>() {
+                    override fun areItemsTheSame(oldItem: Film, newItem: Film): Boolean {
+                        return oldItem == newItem
+                    }
+
+                    override fun areContentsTheSame(oldItem: Film, newItem: Film): Boolean {
+                        return oldItem == newItem
+                    }
+                }
     }
 }

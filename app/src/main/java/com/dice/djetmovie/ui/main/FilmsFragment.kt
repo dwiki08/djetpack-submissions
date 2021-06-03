@@ -27,19 +27,6 @@ class FilmsFragment : Fragment() {
     private var filmType: String? = null
     private val viewModel: MainViewModel by viewModel()
 
-    companion object {
-        private const val FILM_TYPE = "film_type"
-
-        @JvmStatic
-        fun newInstance(filmType: String): Fragment {
-            return FilmsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(FILM_TYPE, filmType)
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -123,6 +110,19 @@ class FilmsFragment : Fragment() {
                     viewModel.getTvShowPaging().collect {
                         rvAdapter.submitData(it)
                     }
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val FILM_TYPE = "film_type"
+
+        @JvmStatic
+        fun newInstance(filmType: String): Fragment {
+            return FilmsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(FILM_TYPE, filmType)
                 }
             }
         }

@@ -15,14 +15,6 @@ class TvShowPagingSource(
     private val query: String?
 ) : PagingSource<Int, Film>() {
 
-    companion object {
-        private const val STARTING_PAGE_INDEX = 1
-        private const val API_KEY = Constants.API_KEY
-        private const val API_LANG = Constants.API_LANGUAGE
-        private const val MSG_ERROR = "Failed to getting data from server."
-        private const val MSG_NO_ITEM = "No item found."
-    }
-
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Film> {
         EspressoIdlingResource.increment()
 
@@ -72,7 +64,15 @@ class TvShowPagingSource(
         // Anchor position is the most recently accessed index
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
-                ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
+                    ?: state.closestPageToPosition(anchorPosition)?.nextKey?.minus(1)
         }
+    }
+
+    companion object {
+        private const val STARTING_PAGE_INDEX = 1
+        private const val API_KEY = Constants.API_KEY
+        private const val API_LANG = Constants.API_LANGUAGE
+        private const val MSG_ERROR = "Failed to getting data from server."
+        private const val MSG_NO_ITEM = "No item found."
     }
 }

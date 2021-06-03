@@ -1,12 +1,9 @@
 package com.dice.djetmovie.data.remote
 
-import com.dice.djetmovie.data.remote.response.ResponseMovie
 import com.dice.djetmovie.data.remote.response.ResponseMovieList
-import com.dice.djetmovie.data.remote.response.ResponseTvShow
 import com.dice.djetmovie.data.remote.response.ResponseTvShowList
 import retrofit2.Response
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -41,18 +38,4 @@ interface ApiService {
         @Query("query") query: String,
         @Query("page") page: Int = 1
     ): Response<ResponseTvShowList>
-
-    @GET("movie/{movie_id}")
-    suspend fun getMovieDetail(
-        @Path("movie_id") id: String,
-        @Query("api_key") apiKey: String,
-        @Query("language") language: String
-    ): Response<ResponseMovie>
-
-    @GET("tv/{tv_id}")
-    suspend fun getTvShowDetail(
-        @Path("tv_id") id: String,
-        @Query("api_key") apiKey: String,
-        @Query("language") language: String
-    ): Response<ResponseTvShow>
 }

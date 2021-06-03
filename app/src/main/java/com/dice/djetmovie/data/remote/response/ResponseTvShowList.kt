@@ -7,12 +7,6 @@ data class ResponseTvShowList(
         @field:SerializedName("page")
         val page: Int,
 
-        @field:SerializedName("total_pages")
-        val totalPages: Int,
-
         @field:SerializedName("results")
         val results: List<ResponseTvShow>,
-
-        @field:SerializedName("total_results")
-        val totalResults: Int
 )

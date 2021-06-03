@@ -25,19 +25,6 @@ class FavoriteFilmsFragment : Fragment() {
     private var filmType: String? = null
     private val viewModel: FavoriteViewModel by viewModel()
 
-    companion object {
-        private const val FILM_TYPE = "film_type"
-
-        @JvmStatic
-        fun newInstance(filmType: String): Fragment {
-            return FavoriteFilmsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(FILM_TYPE, filmType)
-                }
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -68,10 +55,10 @@ class FavoriteFilmsFragment : Fragment() {
     }
 
     private fun initView() {
-        binding.viewError.setOnClickListener {
+        binding.viewError.root.setOnClickListener {
             setData()
         }
-        binding.viewEmpty.tag = filmType
+        binding.viewEmpty.root.tag = filmType
     }
 
     private fun initRv() {
@@ -83,9 +70,9 @@ class FavoriteFilmsFragment : Fragment() {
         rvAdapter.addLoadStateListener { loadState ->
             binding.rvFilms.isVisible = loadState.source.refresh is LoadState.NotLoading
             binding.progressLoading.isVisible = loadState.source.refresh is LoadState.Loading
-            binding.viewError.isVisible = loadState.source.refresh is LoadState.Error
+            binding.viewError.root.isVisible = loadState.source.refresh is LoadState.Error
             if (loadState.source.refresh is LoadState.NotLoading) {
-                binding.viewEmpty.isVisible = rvAdapter.itemCount < 1
+                binding.viewEmpty.root.isVisible = rvAdapter.itemCount < 1
             }
         }
         setData()
@@ -104,6 +91,19 @@ class FavoriteFilmsFragment : Fragment() {
                     viewModel.getTvShowPaging().collect {
                         rvAdapter.submitData(it)
                     }
+                }
+            }
+        }
+    }
+
+    companion object {
+        private const val FILM_TYPE = "film_type"
+
+        @JvmStatic
+        fun newInstance(filmType: String): Fragment {
+            return FavoriteFilmsFragment().apply {
+                arguments = Bundle().apply {
+                    putString(FILM_TYPE, filmType)
                 }
             }
         }
